@@ -4,14 +4,18 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func AddReviews(c *gin.Context) (tokenData TokenData, err error) {
+func AddGroups(c *gin.Context) (tokenData TokenData, err error) {
 	tokenData = GetAccessTokenData(c)
+	if !tokenData.Roles["admin"] {
+		err = errors.New("Forbidden")
+	}
 	return
 }
 
-func GetReviews(c *gin.Context) (err error) {
+func GetGroups(c *gin.Context, groupOids *[]primitive.ObjectID) (err error) {
 	tokenData := GetAccessTokenData(c)
 	if !tokenData.Roles["admin"] {
 		err = errors.New("Forbidden")
@@ -19,7 +23,31 @@ func GetReviews(c *gin.Context) (err error) {
 	return
 }
 
-func GetReview(c *gin.Context) (err error) {
+func GetGroup(c *gin.Context, groupId *primitive.ObjectID) (err error) {
+	tokenData := GetAccessTokenData(c)
+	if !tokenData.Roles["admin"] {
+		err = errors.New("Forbidden")
+	}
+	return
+}
+
+func UpdateGroup(c *gin.Context, groupId *primitive.ObjectID) (tokenData TokenData, err error) {
+	tokenData = GetAccessTokenData(c)
+	if !tokenData.Roles["admin"] {
+		err = errors.New("Forbidden")
+	}
+	return
+}
+
+func DeleteGroups(c *gin.Context) (err error) {
+	tokenData := GetAccessTokenData(c)
+	if !tokenData.Roles["admin"] {
+		err = errors.New("Forbidden")
+	}
+	return
+}
+
+func DeleteGroup(c *gin.Context) (err error) {
 	tokenData := GetAccessTokenData(c)
 	if !tokenData.Roles["admin"] {
 		err = errors.New("Forbidden")
