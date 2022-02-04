@@ -10,94 +10,94 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AddPosts(c *gin.Context) {
+func AddCards(c *gin.Context) {
 
-	posts, err := validations.AddPosts(c)
+	cards, err := validations.AddCards(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	tokenData, err := authorizations.AddPosts(c)
+	tokenData, err := authorizations.AddCards(c)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
 		return
 	}
 
-	ids, err := posts.Add(&tokenData.UserID)
+	ids, err := cards.Add(&tokenData.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))
 	} else if len(ids) == 0 {
 		c.Status(http.StatusConflict)
-	} else if len(ids) < len(posts) {
+	} else if len(ids) < len(cards) {
 		c.JSON(http.StatusMultiStatus, utils.SuccessBody(ids))
 	} else {
 		c.JSON(http.StatusCreated, utils.SuccessBody(ids))
 	}
 }
 
-func GetPosts(c *gin.Context) {
+func GetCards(c *gin.Context) {
 
-	header, params, err := validations.GetPosts(c)
+	header, params, err := validations.GetCards(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	posts := models.Posts{}
-	err = posts.Get(params.PostOids, header.Embed)
+	cards := models.Cards{}
+	err = cards.Get(params.CardOids, header.Embed)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))
-	} else if len(posts) == 0 && len(params.PostOids) > 0 {
+	} else if len(cards) == 0 && len(params.CardOids) > 0 {
 		c.Status(http.StatusNotFound)
-	} else if len(posts) < len(params.PostOids) {
-		c.JSON(http.StatusMultiStatus, utils.SuccessBody(posts))
+	} else if len(cards) < len(params.CardOids) {
+		c.JSON(http.StatusMultiStatus, utils.SuccessBody(cards))
 	} else {
-		c.JSON(http.StatusOK, utils.SuccessBody(posts))
+		c.JSON(http.StatusOK, utils.SuccessBody(cards))
 	}
 }
 
-func GetPost(c *gin.Context) {
+func GetCard(c *gin.Context) {
 
-	uri, err := validations.GetPost(c)
+	uri, err := validations.GetCard(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	post := &models.Post{}
-	err = post.Get(&uri.PostOid)
+	card := &models.Card{}
+	err = card.Get(&uri.CardOid)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))
-	} else if post == nil {
+	} else if card == nil {
 		c.Status(http.StatusNotFound)
 	} else {
-		c.JSON(http.StatusOK, utils.SuccessBody(post))
+		c.JSON(http.StatusOK, utils.SuccessBody(card))
 	}
 }
 
-func UpdatePost(c *gin.Context) {
+func UpdateCard(c *gin.Context) {
 
-	uri, post, err := validations.UpdatePost(c)
+	uri, card, err := validations.UpdateCard(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	tokenData, err := authorizations.UpdatePost(c)
+	tokenData, err := authorizations.UpdateCard(c)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
 		return
 	}
 
-	modified, matched, err := post.Update(&uri.PostOid, &tokenData.UserID)
+	modified, matched, err := card.Update(&uri.CardOid, &tokenData.UserID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))
@@ -106,58 +106,58 @@ func UpdatePost(c *gin.Context) {
 	} else if modified == 0 && matched == 1 {
 		c.Status(http.StatusNotModified)
 	} else {
-		c.JSON(http.StatusOK, utils.SuccessBody(post))
+		c.JSON(http.StatusOK, utils.SuccessBody(card))
 	}
 }
 
-func DeletePosts(c *gin.Context) {
-	params, err := validations.DeletePosts(c)
+func DeleteCards(c *gin.Context) {
+	params, err := validations.DeleteCards(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	err = authorizations.DeletePosts(c)
+	tokenData, err := authorizations.DeleteCards(c)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
 		return
 	}
 
-	posts := models.Posts{}
-	res, err := posts.Delete(params.PostOids)
+	cards := models.Cards{}
+	res, err := cards.Delete(params.CardOids, &tokenData.UserID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))
 	} else if res == 0 {
 		c.Status(http.StatusNotFound)
-	} else if res < len(params.PostOids) {
+	} else if res < len(params.CardOids) {
 		c.Status(http.StatusMultiStatus)
 	} else {
 		c.Status(http.StatusNoContent)
 	}
 }
 
-func DeletePost(c *gin.Context) {
+func DeleteCard(c *gin.Context) {
 
-	uri, err := validations.DeletePost(c)
+	uri, err := validations.DeleteCard(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	err = authorizations.DeletePost(c)
+	tokenData, err := authorizations.DeleteCard(c)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
 		return
 	}
 
-	post := &models.Post{}
+	card := &models.Card{}
 
-	res, err := post.Delete(&uri.PostOid)
+	res, err := card.Delete(&uri.CardOid, &tokenData.UserID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))
