@@ -12,8 +12,6 @@ func BuildRoutes(router *gin.Engine) {
 		sessionRoutes(api.Group("/session"))
 		recoveryRoutes(api.Group("/recovery"))
 		cardsRoutes(api.Group("/cards"))
-		reviewsRoutes(api.Group("/reviews"))
-		groupsRoutes(api.Group("/groups"))
 		statusRoutes(api.Group("/status"))
 	}
 }

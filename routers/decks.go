@@ -7,12 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func cardsRoutes(cards *gin.RouterGroup) {
+func decksRoutes(decks *gin.RouterGroup) {
 
-	cards.POST("", middleware.JWTAuthMiddleware(), controllers.AddCards)
-	cards.GET("", middleware.JWTAuthMiddleware(), controllers.GetCards)
-	cards.GET("/:cardId", middleware.JWTAuthMiddleware(), controllers.GetCard)
-	cards.PUT("/:cardId", middleware.JWTAuthMiddleware(), controllers.UpdateCard)
-	cards.DELETE("", middleware.JWTAuthMiddleware(), controllers.DeleteCards)
-	cards.DELETE("/:cardId", middleware.JWTAuthMiddleware(), controllers.DeleteCard)
+	decks.POST("", middleware.JWTAuthMiddleware(), controllers.AddDecks)
+	decks.GET("", middleware.JWTAuthMiddleware(), controllers.GetDecks)
+	decks.GET("/:deckId", middleware.JWTAuthMiddleware(), controllers.GetDeck)
+	decks.PUT("/:deckId", middleware.JWTAuthMiddleware(), controllers.UpdateDeck)
+	decks.DELETE("", middleware.JWTAuthMiddleware(), controllers.DeleteDecks)
+	decks.DELETE("/:deckId", middleware.JWTAuthMiddleware(), controllers.DeleteDeck)
 }

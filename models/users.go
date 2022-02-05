@@ -16,13 +16,12 @@ func init() {
 }
 
 type User struct {
-	ID        *string   `json:"_id"                     bson:"_id"                  binding:"required_without_all=Firstname Lastname Email Phone Address"`
-	Firstname *string   `json:"firstname,omitempty"     bson:"firstname,omitempty"  binding:"required_without=ID"`
-	Lastname  *string   `json:"lastname,omitempty"      bson:"lastname,omitempty"   binding:"required_without=ID"`
-	Email     *string   `json:"email,omitempty"         bson:"email,omitempty"      binding:"required_without=ID"`
-	Password  *string   `json:"password,omitempty"      bson:"-"                    binding:"-"`
-	Audit     *Audit    `json:"audit,omitempty"         bson:"audit,omitempty"      binding:"-"`
-	Profiles  *Profiles `json:"profiles,omitempty"      bson:"-"                    binding:"-"`
+	ID        *string `json:"_id"                     bson:"_id"                  binding:"required_without_all=Firstname Lastname Email"`
+	Firstname *string `json:"firstname,omitempty"     bson:"firstname,omitempty"  binding:"required_without=ID"`
+	Lastname  *string `json:"lastname,omitempty"      bson:"lastname,omitempty"   binding:"required_without=ID"`
+	Email     *string `json:"email,omitempty"         bson:"email,omitempty"      binding:"required_without=ID"`
+	Password  *string `json:"password,omitempty"      bson:"-"                    binding:"-"`
+	Audit     *Audit  `json:"audit,omitempty"         bson:"audit,omitempty"      binding:"-"`
 }
 
 type Users []User
@@ -102,9 +101,4 @@ func (users *Users) Load(embed map[string]interface{}) {
 }
 
 func (user *User) Load(embed map[string]interface{}) {
-	if value, ok := embed["profiles"]; ok {
-		tmp := value.(map[string]interface{})
-		user.Profiles = &Profiles{}
-		user.Profiles.Get(nil, nil, user.ID, tmp)
-	}
 }

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	cognitosrp "github.com/alexrudd/cognito-srp/v4"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -221,90 +220,4 @@ func CognitoConfirmForgotPassword(body validations.AddRecoveryBody) (interface{}
 	}
 
 	return cognitoClient.ConfirmForgotPassword(context.Background(), input)
-}
-
-func CognitoCreateGroups(groups models.Groups, ids []interface{}) error {
-
-	var err error
-
-	for idx, id := range ids {
-
-		strId := id.(primitive.ObjectID).Hex()
-		input := &cognitoidentityprovider.CreateGroupInput{
-			GroupName:   aws.String("group:" + strId),
-			UserPoolId:  aws.String(UserPoolID),
-			Description: aws.String(*groups[idx].Label),
-		}
-
-		_, err := cognitoClient.CreateGroup(context.Background(), input)
-
-		if err != nil {
-			return err
-		}
-	}
-	return err
-}
-
-func CognitoDeleteGroup(group *models.Group) (interface{}, error) {
-
-	input := &cognitoidentityprovider.DeleteGroupInput{
-		UserPoolId: aws.String(UserPoolID),
-		GroupName:  aws.String("group:" + group.ID.Hex()),
-	}
-
-	return cognitoClient.DeleteGroup(context.Background(), input)
-}
-
-func CognitoDeleteGroups(groups models.Groups) (err error) {
-
-	for _, group := range groups {
-		_, err = CognitoDeleteGroup(&group)
-		if err != nil {
-			return
-		}
-	}
-	return
-}
-
-func CognitoAddProfiles(groupId string, profiles models.Profiles) error {
-
-	var err error
-
-	for _, profile := range profiles {
-
-		input := &cognitoidentityprovider.AdminAddUserToGroupInput{
-			UserPoolId: aws.String(UserPoolID),
-			GroupName:  aws.String("group:" + groupId),
-			Username:   aws.String(*profile.User.Email),
-		}
-
-		_, err := cognitoClient.AdminAddUserToGroup(context.Background(), input)
-
-		if err != nil {
-			return err
-		}
-	}
-	return err
-}
-
-func CognitoDeleteProfile(groupId string, profile *models.Profile) (interface{}, error) {
-
-	input := &cognitoidentityprovider.AdminRemoveUserFromGroupInput{
-		UserPoolId: aws.String(UserPoolID),
-		GroupName:  aws.String("group:" + groupId),
-		Username:   aws.String(*profile.User.Email),
-	}
-
-	return cognitoClient.AdminRemoveUserFromGroup(context.Background(), input)
-}
-
-func CognitoDeleteProfiles(groupId string, profiles models.Profiles) (err error) {
-
-	for _, profile := range profiles {
-		_, err = CognitoDeleteProfile(groupId, &profile)
-		if err != nil {
-			return
-		}
-	}
-	return
 }

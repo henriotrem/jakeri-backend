@@ -17,7 +17,7 @@ func init() {
 }
 
 type Card struct {
-	ID          *primitive.ObjectID `json:"_id"                     bson:"_id,omitempty"            binding:"required_without_all=Label Description Address"`
+	ID          *primitive.ObjectID `json:"_id"                     bson:"_id,omitempty"            binding:"required_without_all=Label Description"`
 	Label       *string             `json:"label,omitempty"         bson:"label,omitempty"          binding:"required_without=ID"`
 	Description *string             `json:"description,omitempty"   bson:"description,omitempty"    binding:"required_without=ID"`
 	Content     *string             `json:"content,omitempty"       bson:"content,omitempty"        binding:"required_without=ID"`
