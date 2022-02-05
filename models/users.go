@@ -22,6 +22,7 @@ type User struct {
 	Email     *string `json:"email,omitempty"         bson:"email,omitempty"      binding:"required_without=ID"`
 	Password  *string `json:"password,omitempty"      bson:"-"                    binding:"-"`
 	Audit     *Audit  `json:"audit,omitempty"         bson:"audit,omitempty"      binding:"-"`
+	Decks     *Decks  `json:"decks,omitempty"         bson:"-"                    binding:"-"`
 }
 
 type Users []User
@@ -101,4 +102,9 @@ func (users *Users) Load(embed map[string]interface{}) {
 }
 
 func (user *User) Load(embed map[string]interface{}) {
+	if value, ok := embed["decks"]; ok {
+		tmp := value.(map[string]interface{})
+		user.Decks = &Decks{}
+		user.Decks.Get(nil, user.ID, tmp)
+	}
 }
