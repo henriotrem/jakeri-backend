@@ -31,7 +31,7 @@ func (users *Users) Add() ([]interface{}, error) {
 	data := make([]interface{}, 0)
 	for _, user := range *users {
 		user.Audit = &Audit{}
-		user.Audit.Create(nil)
+		user.Audit.Create()
 		data = append(data, user)
 	}
 	val, err := usersCollection.InsertMany(ctx, data)
@@ -70,7 +70,7 @@ func (user *User) Update(id *string, modificatorId *string) (int, int, error) {
 	query := bson.M{"_id": id}
 	user.ID = id
 	user.Audit = &Audit{}
-	user.Audit.Modify(modificatorId)
+	user.Audit.Modify()
 	obj, _ := flatbson.Flatten(user)
 	data := bson.M{"$set": obj}
 	res, err := usersCollection.UpdateOne(ctx, query, data)

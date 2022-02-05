@@ -18,6 +18,7 @@ func init() {
 
 type Card struct {
 	ID          *primitive.ObjectID `json:"_id"                     bson:"_id,omitempty"            binding:"required_without_all=Label Description"`
+	User        *User               `json:"user,omitempty"          bson:"user,omitempty"           binding:"required_without=ID"`
 	Label       *string             `json:"label,omitempty"         bson:"label,omitempty"          binding:"required_without=ID"`
 	Description *string             `json:"description,omitempty"   bson:"description,omitempty"    binding:"required_without=ID"`
 	Content     *string             `json:"content,omitempty"       bson:"content,omitempty"        binding:"required_without=ID"`
@@ -31,7 +32,7 @@ func (cards *Cards) Add(userId *string) ([]interface{}, error) {
 	data := make([]interface{}, 0)
 	for _, card := range *cards {
 		card.Audit = &Audit{}
-		card.Audit.Create(userId)
+		card.Audit.Create()
 		data = append(data, card)
 	}
 	val, err := cardsCollection.InsertMany(ctx, data)
@@ -64,10 +65,10 @@ func (card *Card) Get(id *primitive.ObjectID) error {
 
 func (card *Card) Update(id *primitive.ObjectID, userId *string) (int, int, error) {
 	var ctx context.Context
-	query := bson.M{"_id": id, "audit.createdBy": userId}
+	query := bson.M{"_id": id, "user._id": userId}
 	card.ID = id
 	card.Audit = &Audit{}
-	card.Audit.Modify(userId)
+	card.Audit.Modify()
 	obj, _ := flatbson.Flatten(card)
 	data := bson.M{"$set": obj}
 	res, err := cardsCollection.UpdateOne(ctx, query, data)
@@ -76,7 +77,7 @@ func (card *Card) Update(id *primitive.ObjectID, userId *string) (int, int, erro
 
 func (cards *Cards) Delete(ids []primitive.ObjectID, userId *string) (int, error) {
 	var ctx context.Context
-	query := bson.M{"audit.createdBy": userId}
+	query := bson.M{"user._id": userId}
 	if len(ids) > 0 {
 		query["_id"] = bson.M{"$in": ids}
 	}
@@ -86,7 +87,7 @@ func (cards *Cards) Delete(ids []primitive.ObjectID, userId *string) (int, error
 
 func (card *Card) Delete(id *primitive.ObjectID, userId *string) (int, error) {
 	var ctx context.Context
-	query := bson.M{"_id": id, "audit.createdBy": userId}
+	query := bson.M{"_id": id, "user._id": userId}
 	res, err := cardsCollection.DeleteOne(ctx, query)
 	return int(res.DeletedCount), err
 }

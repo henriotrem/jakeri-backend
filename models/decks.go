@@ -30,7 +30,7 @@ func (decks *Decks) Add(userId *string) ([]interface{}, error) {
 	data := make([]interface{}, 0)
 	for _, deck := range *decks {
 		deck.Audit = &Audit{}
-		deck.Audit.Create(userId)
+		deck.Audit.Create()
 		data = append(data, deck)
 	}
 	val, err := decksCollection.InsertMany(ctx, data)
@@ -40,9 +40,9 @@ func (decks *Decks) Add(userId *string) ([]interface{}, error) {
 	return val.InsertedIDs, err
 }
 
-func (decks *Decks) Get(ids []primitive.ObjectID, embed map[string]interface{}) error {
+func (decks *Decks) Get(ids []primitive.ObjectID, userId *string, embed map[string]interface{}) error {
 	var ctx context.Context
-	query := bson.M{}
+	query := bson.M{"user._id": userId}
 	if len(ids) > 0 {
 		query["_id"] = bson.M{"$in": ids}
 	}
@@ -54,19 +54,19 @@ func (decks *Decks) Get(ids []primitive.ObjectID, embed map[string]interface{}) 
 	return err
 }
 
-func (deck *Deck) Get(id *primitive.ObjectID) error {
+func (deck *Deck) Get(id *primitive.ObjectID, userId *string) error {
 	var ctx context.Context
-	query := bson.M{"_id": id}
+	query := bson.M{"_id": id, "user._id": userId}
 	err := decksCollection.FindOne(ctx, query).Decode(&deck)
 	return err
 }
 
 func (deck *Deck) Update(id *primitive.ObjectID, userId *string) (int, int, error) {
 	var ctx context.Context
-	query := bson.M{"_id": id, "audit.createdBy": userId}
+	query := bson.M{"_id": id, "user._id": userId}
 	deck.ID = id
 	deck.Audit = &Audit{}
-	deck.Audit.Modify(userId)
+	deck.Audit.Modify()
 	obj, _ := flatbson.Flatten(deck)
 	data := bson.M{"$set": obj}
 	res, err := decksCollection.UpdateOne(ctx, query, data)
@@ -75,7 +75,7 @@ func (deck *Deck) Update(id *primitive.ObjectID, userId *string) (int, int, erro
 
 func (decks *Decks) Delete(ids []primitive.ObjectID, userId *string) (int, error) {
 	var ctx context.Context
-	query := bson.M{"audit.createdBy": userId}
+	query := bson.M{"user._id": userId}
 	if len(ids) > 0 {
 		query["_id"] = bson.M{"$in": ids}
 	}
@@ -85,7 +85,7 @@ func (decks *Decks) Delete(ids []primitive.ObjectID, userId *string) (int, error
 
 func (deck *Deck) Delete(id *primitive.ObjectID, userId *string) (int, error) {
 	var ctx context.Context
-	query := bson.M{"_id": id, "audit.createdBy": userId}
+	query := bson.M{"_id": id, "user._id": userId}
 	res, err := decksCollection.DeleteOne(ctx, query)
 	return int(res.DeletedCount), err
 }
