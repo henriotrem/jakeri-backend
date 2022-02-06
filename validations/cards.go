@@ -14,15 +14,15 @@ func AddCards(c *gin.Context) (body models.Cards, err error) {
 	return
 }
 
+type GetCardsHeader struct {
+	Embed map[string]interface{} `header:"Embed"`
+}
 type GetCardsParams struct {
 	IDs      string `form:"ids"`
 	CardOids []primitive.ObjectID
 }
-type GetCardHeader struct {
-	Embed map[string]interface{} `header:"Embed"`
-}
 
-func GetCards(c *gin.Context) (header GetCardHeader, params GetCardsParams, err error) {
+func GetCards(c *gin.Context) (header GetCardsHeader, params GetCardsParams, err error) {
 	if err == nil {
 		err = c.ShouldBindHeader(&header)
 	}
@@ -35,6 +35,9 @@ func GetCards(c *gin.Context) (header GetCardHeader, params GetCardsParams, err 
 	return
 }
 
+type GetCardHeader struct {
+	Embed map[string]interface{} `header:"Embed"`
+}
 type GetCardUri struct {
 	CardId  string `uri:"cardId" binding:"required"`
 	CardOid primitive.ObjectID

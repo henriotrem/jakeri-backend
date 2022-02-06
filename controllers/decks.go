@@ -12,14 +12,14 @@ import (
 
 func AddDecks(c *gin.Context) {
 
-	decks, err := validations.AddDecks(c)
+	uri, decks, err := validations.AddDecks(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	tokenData, err := authorizations.AddDecks(c)
+	tokenData, err := authorizations.AddDecks(c, uri.UserId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -40,14 +40,14 @@ func AddDecks(c *gin.Context) {
 
 func GetDecks(c *gin.Context) {
 
-	header, params, err := validations.GetDecks(c)
+	header, uri, params, err := validations.GetDecks(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	tokenData, err := authorizations.GetDecks(c)
+	tokenData, err := authorizations.GetDecks(c, uri.UserId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -76,7 +76,7 @@ func GetDeck(c *gin.Context) {
 		return
 	}
 
-	tokenData, err := authorizations.GetDecks(c)
+	tokenData, err := authorizations.GetDecks(c, uri.UserId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -104,7 +104,7 @@ func UpdateDeck(c *gin.Context) {
 		return
 	}
 
-	tokenData, err := authorizations.UpdateDeck(c)
+	tokenData, err := authorizations.UpdateDeck(c, uri.UserId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -125,14 +125,14 @@ func UpdateDeck(c *gin.Context) {
 }
 
 func DeleteDecks(c *gin.Context) {
-	params, err := validations.DeleteDecks(c)
+	uri, params, err := validations.DeleteDecks(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	tokenData, err := authorizations.DeleteDecks(c)
+	tokenData, err := authorizations.DeleteDecks(c, uri.UserId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -162,7 +162,7 @@ func DeleteDeck(c *gin.Context) {
 		return
 	}
 
-	tokenData, err := authorizations.DeleteDeck(c)
+	tokenData, err := authorizations.DeleteDeck(c, uri.UserId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
