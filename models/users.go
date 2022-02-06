@@ -16,13 +16,12 @@ func init() {
 }
 
 type User struct {
-	ID        *string `json:"_id"                     bson:"_id"                  binding:"required_without_all=Firstname Lastname Email"`
-	Firstname *string `json:"firstname,omitempty"     bson:"firstname,omitempty"  binding:"required_without=ID"`
-	Lastname  *string `json:"lastname,omitempty"      bson:"lastname,omitempty"   binding:"required_without=ID"`
-	Email     *string `json:"email,omitempty"         bson:"email,omitempty"      binding:"required_without=ID"`
-	Password  *string `json:"password,omitempty"      bson:"-"                    binding:"-"`
-	Audit     *Audit  `json:"audit,omitempty"         bson:"audit,omitempty"      binding:"-"`
-	Decks     *Decks  `json:"decks,omitempty"         bson:"-"                    binding:"-"`
+	ID       *string `json:"_id"                     bson:"_id"                  binding:"required_without_all=Username Email"`
+	Username *string `json:"username,omitempty"      bson:"username,omitempty"   binding:"requered_without=ID"`
+	Email    *string `json:"email,omitempty"         bson:"email,omitempty"      binding:"required_without=ID"`
+	Password *string `json:"password,omitempty"      bson:"-"                    binding:"-"`
+	Audit    *Audit  `json:"audit,omitempty"         bson:"audit,omitempty"      binding:"-"`
+	Decks    *Decks  `json:"decks,omitempty"         bson:"-"                    binding:"-"`
 }
 
 type Users []User

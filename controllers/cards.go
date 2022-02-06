@@ -12,14 +12,14 @@ import (
 
 func AddCards(c *gin.Context) {
 
-	cards, err := validations.AddCards(c)
+	uri, cards, err := validations.AddCards(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	tokenData, err := authorizations.AddCards(c)
+	tokenData, err := authorizations.AddCards(c, uri.ProfileId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -40,7 +40,7 @@ func AddCards(c *gin.Context) {
 
 func GetCards(c *gin.Context) {
 
-	header, params, err := validations.GetCards(c)
+	header, uri, params, err := validations.GetCards(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
@@ -48,7 +48,7 @@ func GetCards(c *gin.Context) {
 	}
 
 	cards := models.Cards{}
-	err = cards.Get(params.CardOids, header.Embed)
+	err = cards.Get(params.CardOids, &uri.ProfileId, header.Embed)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))
 	} else if len(cards) == 0 && len(params.CardOids) > 0 {
@@ -62,7 +62,7 @@ func GetCards(c *gin.Context) {
 
 func GetCard(c *gin.Context) {
 
-	uri, err := validations.GetCard(c)
+	header, uri, err := validations.GetCard(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
@@ -70,7 +70,7 @@ func GetCard(c *gin.Context) {
 	}
 
 	card := &models.Card{}
-	err = card.Get(&uri.CardOid)
+	err = card.Get(&uri.CardOid, header.Embed)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))
@@ -90,7 +90,7 @@ func UpdateCard(c *gin.Context) {
 		return
 	}
 
-	tokenData, err := authorizations.UpdateCard(c)
+	tokenData, err := authorizations.UpdateCard(c, uri.ProfileId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -111,14 +111,14 @@ func UpdateCard(c *gin.Context) {
 }
 
 func DeleteCards(c *gin.Context) {
-	params, err := validations.DeleteCards(c)
+	uri, params, err := validations.DeleteCards(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	tokenData, err := authorizations.DeleteCards(c)
+	tokenData, err := authorizations.DeleteCards(c, uri.ProfileId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -148,7 +148,7 @@ func DeleteCard(c *gin.Context) {
 		return
 	}
 
-	tokenData, err := authorizations.DeleteCard(c)
+	tokenData, err := authorizations.DeleteCard(c, uri.ProfileId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))

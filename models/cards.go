@@ -18,19 +18,20 @@ func init() {
 
 type Card struct {
 	ID          *primitive.ObjectID `json:"_id"                     bson:"_id,omitempty"            binding:"required_without_all=Label Description"`
-	User        *User               `json:"user,omitempty"          bson:"user,omitempty"           binding:"required_without=ID"`
 	Label       *string             `json:"label,omitempty"         bson:"label,omitempty"          binding:"required_without=ID"`
 	Description *string             `json:"description,omitempty"   bson:"description,omitempty"    binding:"required_without=ID"`
 	Content     *string             `json:"content,omitempty"       bson:"content,omitempty"        binding:"required_without=ID"`
+	Profile     *Profile            `json:"profile,omitempty"       bson:"profile,omitempty"        binding:"-"`
 	Audit       *Audit              `json:"audit,omitempty"         bson:"audit,omitempty"          binding:"-"`
 }
 
 type Cards []Card
 
-func (cards *Cards) Add(userId *string) ([]interface{}, error) {
+func (cards *Cards) Add(profileId *string) ([]interface{}, error) {
 	var ctx context.Context
 	data := make([]interface{}, 0)
 	for _, card := range *cards {
+		card.Profile = &Profile{ID: profileId}
 		card.Audit = &Audit{}
 		card.Audit.Create()
 		data = append(data, card)
@@ -42,9 +43,9 @@ func (cards *Cards) Add(userId *string) ([]interface{}, error) {
 	return val.InsertedIDs, err
 }
 
-func (cards *Cards) Get(ids []primitive.ObjectID, embed map[string]interface{}) error {
+func (cards *Cards) Get(ids []primitive.ObjectID, profileId *string, embed map[string]interface{}) error {
 	var ctx context.Context
-	query := bson.M{}
+	query := bson.M{"profile._id": profileId}
 	if len(ids) > 0 {
 		query["_id"] = bson.M{"$in": ids}
 	}
@@ -56,16 +57,19 @@ func (cards *Cards) Get(ids []primitive.ObjectID, embed map[string]interface{}) 
 	return err
 }
 
-func (card *Card) Get(id *primitive.ObjectID) error {
+func (card *Card) Get(id *primitive.ObjectID, embed map[string]interface{}) error {
 	var ctx context.Context
 	query := bson.M{"_id": id}
 	err := cardsCollection.FindOne(ctx, query).Decode(&card)
+	if err == nil {
+		card.Load(embed)
+	}
 	return err
 }
 
-func (card *Card) Update(id *primitive.ObjectID, userId *string) (int, int, error) {
+func (card *Card) Update(id *primitive.ObjectID, profileId *string) (int, int, error) {
 	var ctx context.Context
-	query := bson.M{"_id": id, "user._id": userId}
+	query := bson.M{"_id": id, "profile._id": profileId}
 	card.ID = id
 	card.Audit = &Audit{}
 	card.Audit.Modify()
@@ -75,9 +79,9 @@ func (card *Card) Update(id *primitive.ObjectID, userId *string) (int, int, erro
 	return int(res.ModifiedCount), int(res.MatchedCount), err
 }
 
-func (cards *Cards) Delete(ids []primitive.ObjectID, userId *string) (int, error) {
+func (cards *Cards) Delete(ids []primitive.ObjectID, profileId *string) (int, error) {
 	var ctx context.Context
-	query := bson.M{"user._id": userId}
+	query := bson.M{"profile._id": profileId}
 	if len(ids) > 0 {
 		query["_id"] = bson.M{"$in": ids}
 	}
@@ -85,9 +89,9 @@ func (cards *Cards) Delete(ids []primitive.ObjectID, userId *string) (int, error
 	return int(res.DeletedCount), err
 }
 
-func (card *Card) Delete(id *primitive.ObjectID, userId *string) (int, error) {
+func (card *Card) Delete(id *primitive.ObjectID, profileId *string) (int, error) {
 	var ctx context.Context
-	query := bson.M{"_id": id, "user._id": userId}
+	query := bson.M{"_id": id, "profile._id": profileId}
 	res, err := cardsCollection.DeleteOne(ctx, query)
 	return int(res.DeletedCount), err
 }
@@ -99,4 +103,7 @@ func (cards *Cards) Load(embed map[string]interface{}) {
 }
 
 func (card *Card) Load(embed map[string]interface{}) {
+	if _, ok := embed["profile"]; ok {
+		card.Profile.Get(*card.Profile.ID, nil)
+	}
 }
