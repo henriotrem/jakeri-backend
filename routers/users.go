@@ -17,5 +17,5 @@ func usersRoutes(users *gin.RouterGroup) {
 	users.DELETE("/:userId", middleware.JWTAuthMiddleware(), controllers.DeleteUser)
 	users.PUT("/:userId/password", middleware.JWTAuthMiddleware(), controllers.UpdatePassword)
 
-	decksRoutes(users.Group("/decks"))
+	decksRoutes(users.Group("/:userId/decks"))
 }

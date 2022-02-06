@@ -69,14 +69,14 @@ func GetDecks(c *gin.Context) {
 
 func GetDeck(c *gin.Context) {
 
-	uri, err := validations.GetDeck(c)
+	header, uri, err := validations.GetDeck(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ErrorBody(http.StatusBadRequest, err))
 		return
 	}
 
-	tokenData, err := authorizations.GetDecks(c, uri.UserId)
+	tokenData, err := authorizations.GetDeck(c, uri.UserId)
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, utils.ErrorBody(http.StatusForbidden, err))
@@ -84,7 +84,7 @@ func GetDeck(c *gin.Context) {
 	}
 
 	deck := &models.Deck{}
-	err = deck.Get(&uri.DeckOid, &tokenData.UserID)
+	err = deck.Get(&uri.DeckOid, &tokenData.UserID, header.Embed)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ErrorBody(http.StatusInternalServerError, err))

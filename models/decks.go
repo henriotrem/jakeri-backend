@@ -17,9 +17,10 @@ func init() {
 }
 
 type Deck struct {
-	ID    *primitive.ObjectID `json:"_id"                     bson:"_id,omitempty"            binding:"required_without_all=User"`
-	User  *User               `json:"user,omitempty"          bson:"user,omitempty"           binding:"required_without=ID"`
-	Card  *Card               `json:"card,omitempty"          bson:"card,omitempty"           binding:"-"`
+	ID    *primitive.ObjectID `json:"_id"                     bson:"_id,omitempty"            binding:"required_without_all=Next Card"`
+	Next  *primitive.DateTime `json:"next,omitempty"          bson:"next,omitempty"           binding:"required_without=ID"`
+	Card  *Card               `json:"card,omitempty"          bson:"card,omitempty"           binding:"required_without=ID"`
+	User  *User               `json:"user,omitempty"          bson:"user,omitempty"           binding:"-"`
 	Audit *Audit              `json:"audit,omitempty"         bson:"audit,omitempty"          binding:"-"`
 }
 
@@ -29,6 +30,7 @@ func (decks *Decks) Add(userId *string) ([]interface{}, error) {
 	var ctx context.Context
 	data := make([]interface{}, 0)
 	for _, deck := range *decks {
+		deck.User = &User{ID: userId}
 		deck.Audit = &Audit{}
 		deck.Audit.Create()
 		data = append(data, deck)
@@ -54,10 +56,13 @@ func (decks *Decks) Get(ids []primitive.ObjectID, userId *string, embed map[stri
 	return err
 }
 
-func (deck *Deck) Get(id *primitive.ObjectID, userId *string) error {
+func (deck *Deck) Get(id *primitive.ObjectID, userId *string, embed map[string]interface{}) error {
 	var ctx context.Context
 	query := bson.M{"_id": id, "user._id": userId}
 	err := decksCollection.FindOne(ctx, query).Decode(&deck)
+	if err == nil {
+		deck.Load(embed)
+	}
 	return err
 }
 
@@ -97,4 +102,8 @@ func (decks *Decks) Load(embed map[string]interface{}) {
 }
 
 func (deck *Deck) Load(embed map[string]interface{}) {
+	if value, ok := embed["card"]; ok {
+		tmp := value.(map[string]interface{})
+		deck.Card.Get(*&deck.Card.ID, tmp)
+	}
 }

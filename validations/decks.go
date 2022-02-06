@@ -8,16 +8,12 @@ import (
 )
 
 type AddDecksUri struct {
-	UserId  string `uri:"userId" binding:"required"`
-	UserOid primitive.ObjectID
+	UserId string `uri:"userId" binding:"required"`
 }
 
 func AddDecks(c *gin.Context) (uri AddDecksUri, body models.Decks, err error) {
 	if err == nil {
 		err = c.ShouldBindUri(&uri)
-	}
-	if err == nil {
-		uri.UserOid, err = primitive.ObjectIDFromHex(uri.UserId)
 	}
 	if err == nil {
 		err = c.ShouldBindJSON(&body)
@@ -29,8 +25,7 @@ type GetDecksHeader struct {
 	Embed map[string]interface{} `header:"Embed"`
 }
 type GetDecksUri struct {
-	UserId  string `uri:"userId" binding:"required"`
-	UserOid primitive.ObjectID
+	UserId string `uri:"userId" binding:"required"`
 }
 type GetDecksParams struct {
 	IDs      string `form:"ids"`
@@ -45,9 +40,6 @@ func GetDecks(c *gin.Context) (header GetDecksHeader, uri GetDecksUri, params Ge
 		err = c.ShouldBindUri(&uri)
 	}
 	if err == nil {
-		uri.UserOid, err = primitive.ObjectIDFromHex(uri.UserId)
-	}
-	if err == nil {
 		err = c.ShouldBindQuery(&params)
 	}
 	if err == nil {
@@ -56,19 +48,21 @@ func GetDecks(c *gin.Context) (header GetDecksHeader, uri GetDecksUri, params Ge
 	return
 }
 
+type GetDeckHeader struct {
+	Embed map[string]interface{} `header:"Embed"`
+}
 type GetDeckUri struct {
 	UserId  string `uri:"userId" binding:"required"`
-	UserOid primitive.ObjectID
 	DeckId  string `uri:"deckId" binding:"required"`
 	DeckOid primitive.ObjectID
 }
 
-func GetDeck(c *gin.Context) (uri GetDeckUri, err error) {
+func GetDeck(c *gin.Context) (header GetDeckHeader, uri GetDeckUri, err error) {
 	if err == nil {
-		err = c.ShouldBindUri(&uri)
+		err = c.ShouldBindHeader(&header)
 	}
 	if err == nil {
-		uri.UserOid, err = primitive.ObjectIDFromHex(uri.UserId)
+		err = c.ShouldBindUri(&uri)
 	}
 	if err == nil {
 		uri.DeckOid, err = primitive.ObjectIDFromHex(uri.DeckId)
@@ -78,7 +72,6 @@ func GetDeck(c *gin.Context) (uri GetDeckUri, err error) {
 
 type UpdateDeckUri struct {
 	UserId  string `uri:"userId" binding:"required"`
-	UserOid primitive.ObjectID
 	DeckId  string `uri:"deckId" binding:"required"`
 	DeckOid primitive.ObjectID
 }
@@ -86,9 +79,6 @@ type UpdateDeckUri struct {
 func UpdateDeck(c *gin.Context) (uri UpdateDeckUri, body models.Deck, err error) {
 	if err == nil {
 		err = c.ShouldBindUri(&uri)
-	}
-	if err == nil {
-		uri.UserOid, err = primitive.ObjectIDFromHex(uri.UserId)
 	}
 	if err == nil {
 		uri.DeckOid, err = primitive.ObjectIDFromHex(uri.DeckId)
@@ -100,20 +90,16 @@ func UpdateDeck(c *gin.Context) (uri UpdateDeckUri, body models.Deck, err error)
 }
 
 type DeleteDecksUri struct {
-	UserId  string `uri:"userId" binding:"required"`
-	UserOid primitive.ObjectID
+	UserId string `uri:"userId" binding:"required"`
 }
 type DeleteDecksParams struct {
 	IDs      *string `form:"ids" binding:"required"`
 	DeckOids []primitive.ObjectID
 }
 
-func DeleteDecks(c *gin.Context) (uri UpdateDeckUri, params DeleteDecksParams, err error) {
+func DeleteDecks(c *gin.Context) (uri DeleteDecksUri, params DeleteDecksParams, err error) {
 	if err == nil {
 		err = c.ShouldBindUri(&uri)
-	}
-	if err == nil {
-		uri.UserOid, err = primitive.ObjectIDFromHex(uri.UserId)
 	}
 	if err == nil {
 		err = c.ShouldBindQuery(&params)
@@ -126,7 +112,6 @@ func DeleteDecks(c *gin.Context) (uri UpdateDeckUri, params DeleteDecksParams, e
 
 type DeleteDeckUri struct {
 	UserId  string `uri:"userId" binding:"required"`
-	UserOid primitive.ObjectID
 	DeckId  string `uri:"deckId" binding:"required"`
 	DeckOid primitive.ObjectID
 }
@@ -134,9 +119,6 @@ type DeleteDeckUri struct {
 func DeleteDeck(c *gin.Context) (uri DeleteDeckUri, err error) {
 	if err == nil {
 		err = c.ShouldBindUri(&uri)
-	}
-	if err == nil {
-		uri.UserOid, err = primitive.ObjectIDFromHex(uri.UserId)
 	}
 	if err == nil {
 		uri.DeckOid, err = primitive.ObjectIDFromHex(uri.DeckId)

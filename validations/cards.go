@@ -7,7 +7,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func AddCards(c *gin.Context) (body models.Cards, err error) {
+type AddCardsUri struct {
+	ProfileId string `uri:"profileId" binding:"required"`
+}
+
+func AddCards(c *gin.Context) (uri AddCardsUri, body models.Cards, err error) {
+	if err == nil {
+		err = c.ShouldBindUri(&uri)
+	}
 	if err == nil {
 		err = c.ShouldBindJSON(&body)
 	}
@@ -17,14 +24,20 @@ func AddCards(c *gin.Context) (body models.Cards, err error) {
 type GetCardsHeader struct {
 	Embed map[string]interface{} `header:"Embed"`
 }
+type GetCardsUri struct {
+	ProfileId string `uri:"profileId" binding:"required"`
+}
 type GetCardsParams struct {
 	IDs      string `form:"ids"`
 	CardOids []primitive.ObjectID
 }
 
-func GetCards(c *gin.Context) (header GetCardsHeader, params GetCardsParams, err error) {
+func GetCards(c *gin.Context) (header GetCardsHeader, uri GetCardsUri, params GetCardsParams, err error) {
 	if err == nil {
 		err = c.ShouldBindHeader(&header)
+	}
+	if err == nil {
+		err = c.ShouldBindUri(&uri)
 	}
 	if err == nil {
 		err = c.ShouldBindQuery(&params)
@@ -39,11 +52,15 @@ type GetCardHeader struct {
 	Embed map[string]interface{} `header:"Embed"`
 }
 type GetCardUri struct {
-	CardId  string `uri:"cardId" binding:"required"`
-	CardOid primitive.ObjectID
+	ProfileId string `uri:"profileId" binding:"required"`
+	CardId    string `uri:"cardId" binding:"required"`
+	CardOid   primitive.ObjectID
 }
 
-func GetCard(c *gin.Context) (uri GetCardUri, err error) {
+func GetCard(c *gin.Context) (header GetCardHeader, uri GetCardUri, err error) {
+	if err == nil {
+		err = c.ShouldBindHeader(&header)
+	}
 	if err == nil {
 		err = c.ShouldBindUri(&uri)
 	}
@@ -54,8 +71,9 @@ func GetCard(c *gin.Context) (uri GetCardUri, err error) {
 }
 
 type UpdateCardUri struct {
-	CardId  string `uri:"cardId" binding:"required"`
-	CardOid primitive.ObjectID
+	ProfileId string `uri:"profileId" binding:"required"`
+	CardId    string `uri:"cardId" binding:"required"`
+	CardOid   primitive.ObjectID
 }
 
 func UpdateCard(c *gin.Context) (uri UpdateCardUri, body models.Card, err error) {
@@ -71,12 +89,18 @@ func UpdateCard(c *gin.Context) (uri UpdateCardUri, body models.Card, err error)
 	return
 }
 
+type DeleteCardsUri struct {
+	ProfileId string `uri:"profileId" binding:"required"`
+}
 type DeleteCardsParams struct {
 	IDs      *string `form:"ids" binding:"required"`
 	CardOids []primitive.ObjectID
 }
 
-func DeleteCards(c *gin.Context) (params DeleteCardsParams, err error) {
+func DeleteCards(c *gin.Context) (uri DeleteCardsUri, params DeleteCardsParams, err error) {
+	if err == nil {
+		err = c.ShouldBindUri(&uri)
+	}
 	if err == nil {
 		err = c.ShouldBindQuery(&params)
 	}
@@ -87,8 +111,9 @@ func DeleteCards(c *gin.Context) (params DeleteCardsParams, err error) {
 }
 
 type DeleteCardUri struct {
-	CardId  string `uri:"cardId" binding:"required"`
-	CardOid primitive.ObjectID
+	ProfileId string `uri:"profileId" binding:"required"`
+	CardId    string `uri:"cardId" binding:"required"`
+	CardOid   primitive.ObjectID
 }
 
 func DeleteCard(c *gin.Context) (uri DeleteCardUri, err error) {
